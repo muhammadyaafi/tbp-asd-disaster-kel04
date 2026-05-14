@@ -3,4 +3,4 @@ pembagian modul
 Ya'afi : graph & dijkstra
 Raihan : stack log pengiriman
 Hafidh : priority queue bantuan
-Nafif :
+Nafif : bst registry lokasi
