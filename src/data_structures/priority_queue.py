@@ -1,5 +1,8 @@
+<<<<<<< HEAD:src/data_structures/priority_queue.py
 from data_structures.linked_list import LLNode
 
+=======
+>>>>>>> 5b276c5 (feat(queue) : implementasi priority queue):src/data_structures/queue_ll.py
 class LLNode: 
     def __init__(self, data=None): 
         self.data = data 
@@ -69,7 +72,11 @@ class PriorityQueueBantuan:
         self._size += 1
     
     def dequeue(self): 
+<<<<<<< HEAD:src/data_structures/priority_queue.py
         """Big-O: O(1).""" 
+=======
+        """Big-O: O(1)."""  
+>>>>>>> 5b276c5 (feat(queue) : implementasi priority queue):src/data_structures/queue_ll.py
         if self.head is None:
             return None
         bantuan = self.head.data
@@ -81,4 +88,8 @@ class PriorityQueueBantuan:
         return self._size 
 
     def is_empty(self):
+<<<<<<< HEAD:src/data_structures/priority_queue.py
         return self._size == 0
+=======
+        return self._size == 0
+>>>>>>> 5b276c5 (feat(queue) : implementasi priority queue):src/data_structures/queue_ll.py
