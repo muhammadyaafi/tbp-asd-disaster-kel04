@@ -322,20 +322,20 @@ def generate_peta_bencana(n_lokasi=35, n_depot=3, seed=47):
 def dijkstra_logistik(graph, depot): 
     """Shortest path dari depot. Big-O: O(V^2+E).""" 
     INF = float('inf') 
-    dist = {v: INF for v in graph.adj} # Jarak awal semua node = tak hingga
-    parent = {v: None for v in graph.adj} # Parent untuk rekonstruksi jalur
+    dist = {v: INF for v in graph._adj} # Jarak awal semua node = tak hingga
+    parent = {v: None for v in graph._adj} # Parent untuk rekonstruksi jalur
     dist[depot] = 0 # Jarak depot ke dirinya sendiri = 0
     visited = set() # Menyimpan node yang sudah diproses
     # TODO: implementasikan
 
-    while len(visited) < len(graph.adj):
+    while len(visited) < len(graph._adj):
 
         # Cari node belum dikunjungi
         # dengan jarak minimum
         current = None
         current_dist = INF
 
-        for node in graph.adj:
+        for node in graph._adj:
 
             if node not in visited and dist[node] < current_dist:
                 current = node
@@ -349,7 +349,7 @@ def dijkstra_logistik(graph, depot):
         visited.add(current)
 
         # Traversal tetangga current
-        edge = graph.adj[current]
+        edge = graph._adj[current]
 
         while edge:
 
