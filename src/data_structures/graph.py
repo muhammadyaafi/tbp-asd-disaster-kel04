@@ -36,7 +36,7 @@ class GraphRute:
         """Big-O: O(deg).""" 
         # pass  # TODO: implementasikan 
         hasil = []
-        curr = self.adj[u]
+        curr = self._adj[u]
         while curr:
             hasil.append(
                 (curr.dest, curr.jarak, curr.kapasitas)
@@ -54,7 +54,7 @@ class GraphRute:
         visited.add(depot)
         while not q.is_empty():
             current = q.dequeue()
-            edge = self.adj[current]
+            edge = self._adj[current]
             while edge:
                 tetangga = edge.dest
                 if tetangga not in visited:
