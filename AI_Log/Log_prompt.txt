@@ -1060,3 +1060,151 @@ Inorder Traversal: O(n) karena harus mengunjungi setiap node tepat satu kali
 Pastikan modul ini terintegrasi dengan modul lain seperti Graph Jaringan Rute untuk memvalidasi apakah lokasi yang terdaftar di BST dapat dijangkau dari depot
 .
 Apakah Anda ingin saya menjelaskan bagaimana cara menangani skenario terburuk (worst-case) jika data lokasi dimasukkan secara berurutan?
+
+
+nah itu kan ada diberikan coding starter, aku kebagian ngerjain modul priority queue bisakah kamu bantu aku lengkapi kodingan queue dari starter codenya
+
+Untuk melengkapi modul Priority Queue pada Topik 9: Disaster Response Logistics System, kamu harus mengimplementasikan algoritma sorted insertion pada Linked List agar data yang masuk otomatis terurut berdasarkan prioritas bencana (Level 1/KRITIS di depan)
+.
+Berikut adalah implementasi lengkap untuk kelas PriorityQueueBantuan berdasarkan starter code yang diberikan:
+Implementasi Priority Queue (Topik 9)
+# -- Node Linked List (Sudah ada di starter) --
+class LLNode:
+    def __init__(self, data=None):
+        self.data = data
+        self.next = None
+
+# -- Priority Queue (Lengkapi bagian ini) --
+class PriorityQueueBantuan:
+    """Lokasi KRITIS (level=1) selalu dilayani lebih dulu."""
+    def __init__(self):
+        self.head = None
+        self._size = 0
+
+    def enqueue(self, bantuan):
+        """
+        Big-O: O(n) - Mencari posisi yang tepat berdasarkan level prioritas.
+        Prioritas lebih kecil (Level 1) diletakkan di depan.
+        """
+        new_node = LLNode(bantuan)
+        
+        # Kasus 1: Antrian kosong atau prioritas bantuan baru lebih tinggi (angka level lebih kecil) dari Head
+        if self.head is None or bantuan.prioritas < self.head.data.prioritas:
+            new_node.next = self.head
+            self.head = new_node
+        else:
+            # Kasus 2: Cari posisi yang tepat di tengah atau akhir antrian
+            # Menggunakan logika <= agar bantuan dengan prioritas sama tetap mempertahankan urutan FIFO (masuk belakangan di posisi belakang)
+            current = self.head
+            while current.next is not None and current.next.data.prioritas <= bantuan.prioritas:
+                current = current.next
+            
+            new_node.next = current.next
+            current.next = new_node
+        
+        self._size += 1
+
+    def dequeue(self) -> Optional[Bantuan]:
+        """
+        Big-O: O(1) - Selalu mengambil elemen dari Head.
+        """
+        if self.head is None:
+            return None
+        
+        # Ambil data dari head
+        bantuan_diproses = self.head.data
+        # Geser head ke node berikutnya
+        self.head = self.head.next
+        self._size -= 1
+        return bantuan_diproses
+
+    def __len__(self):
+        """Mengembalikan jumlah elemen dalam antrian."""
+        return self._size
+
+    def is_empty(self):
+        """Mengecek apakah antrian kosong."""
+        return self._size == 0
+Penjelasan Logika Implementasi:
+Struktur Data: Sesuai aturan proyek, antrian ini dibangun menggunakan Linked List dari nol tanpa menggunakan library seperti collections.deque
+.
+Operasi enqueue (O(n)): Karena ini adalah Priority Queue berbasis Linked List terurut, setiap kali ada bantuan baru masuk melalui perintah KIRIM, sistem akan menelusuri daftar untuk menempatkannya di posisi yang sesuai dengan level bencananya
+. Bantuan dengan level KRITIS (1) akan selalu berada di depan bantuan level SEDANG (2) atau RINGAN (3)
+.
+Operasi dequeue (O(1)): Karena daftar sudah dalam keadaan terurut saat proses insertion, maka saat PROSES_BANTUAN dipanggil, kita cukup mengambil elemen di bagian paling depan (head). Hal ini menjamin efisiensi waktu pengambilan data yang sangat cepat
+.
+Tie-break FIFO: Pada bagian current.next.data.prioritas <= bantuan.prioritas, penggunaan operator <= memastikan bahwa jika ada dua permintaan bantuan dengan level prioritas yang sama, bantuan yang datang lebih dulu akan dilayani lebih dulu (prinsip First-In First-Out)
+.
+Catatan Tambahan: Pastikan kamu menggunakan objek dari kelas Bantuan saat memanggil fungsi enqueue ini agar atribut .prioritas dapat diakses dengan benar oleh logika di atas
+. Jangan lupa untuk mendokumentasikan analisis Big-O ini di dalam laporanmu karena itu merupakan poin penilaian utama
+.
+kalau untuk yg circular?
+
+Berdasarkan sumber yang ada, struktur Circular Queue secara spesifik diwajibkan untuk Topik 10 (Urban Food Supply Chain), bukan Topik 9 (Disaster Response)
+. Namun, jika kamu ingin mengimplementasikannya sebagai variasi atau jika kamu sebenarnya berpindah ke Topik 10, berikut adalah kelengkapan kode untuk CircularQueue berdasarkan starter code yang tersedia:
+Implementasi Circular Queue (Berbasis Array)
+Berbeda dengan Priority Queue yang menggunakan Linked List, Circular Queue menggunakan array dengan kapasitas tetap (misalnya 50 slot) untuk mensimulasikan buffer stok
+.
+class CircularQueue:
+    """
+    Circular Queue berbasis array (kapasitas tetap).
+    Digunakan untuk buffer FIFO agar produk lama tidak tertimbun.
+    """
+    def __init__(self, kapasitas):
+        self.kapasitas = kapasitas
+        self.buffer = [None] * kapasitas
+        self.front = 0
+        self.rear = 0
+        self._size = 0
+
+    def enqueue(self, produk) -> bool:
+        """
+        Big-O: O(1).
+        Menambahkan elemen di posisi rear.
+        """
+        if self.is_full():
+            return False  # Buffer penuh
+        
+        self.buffer[self.rear] = produk
+        # Geser rear secara melingkar menggunakan modulo
+        self.rear = (self.rear + 1) % self.kapasitas
+        self._size += 1
+        return True
+
+    def dequeue(self):
+        """
+        Big-O: O(1).
+        Mengambil elemen tertua di posisi front.
+        """
+        if self.is_empty():
+            return None
+        
+        produk_keluar = self.buffer[self.front]
+        self.buffer[self.front] = None  # Opsional: bersihkan slot
+        
+        # Geser front secara melingkar menggunakan modulo
+        self.front = (self.front + 1) % self.kapasitas
+        self._size -= 1
+        return produk_keluar
+
+    def is_full(self):
+        """Big-O: O(1)."""
+        return self._size == self.kapasitas
+
+    def is_empty(self):
+        """Big-O: O(1)."""
+        return self._size == 0
+
+    def __len__(self):
+        return self._size
+Poin Penting Perbedaan dengan Priority Queue:
+Mekanisme Indeks: Menggunakan operator % (modulo) untuk memastikan saat indeks mencapai akhir array, ia akan kembali ke posisi 0
+. Inilah yang membuatnya disebut "Circular".
+Efisiensi Waktu (O(1)): Berbeda dengan Priority Queue berbasis Linked List yang enqueue-nya bisa mencapai O(n) karena harus mencari posisi urutan, Circular Queue selalu O(1) untuk tambah dan hapus karena langsung menuju indeks front atau rear
+.
+Kapasitas Terbatas: Struktur ini memiliki kapasitas tetap (misalnya 50 slot). Jika penuh, data baru tidak bisa masuk kecuali ada data lama yang dikeluarkan (dequeue)
+.
+Kasus Penggunaan: Di Topik 10, ini digunakan untuk simulasi gudang pangan guna memastikan prinsip First-In First-Out (FIFO) untuk meminimalkan produk kadaluarsa
+.
+Catatan untuk Topik 9: Jika kamu tetap mengerjakan Topik 9 (Disaster), pastikan kamu menggunakan Priority Queue berbasis Linked List yang sebelumnya kita bahas, karena sistem bencana membutuhkan pengurutan lokasi berdasarkan level KRITIS
+. Circular Queue biasanya tidak mendukung prioritas secara langsung tanpa modifikasi tambahan.
