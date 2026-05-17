@@ -18,6 +18,12 @@ class GraphRute:
     def tambah_rute(self, u, v, jarak, kapasitas): 
         """Big-O: O(1). Graf tidak berarah.""" 
         # pass  # TODO: implementasikan 
+        if u not in self._adj:
+            self.tambah_node(u)
+
+        if v not in self._adj:
+            self.tambah_node(v)
+
         node_uv = EdgeNode(v, jarak, kapasitas)
         node_uv.next = self._adj[u]
         self._adj[u] = node_uv
