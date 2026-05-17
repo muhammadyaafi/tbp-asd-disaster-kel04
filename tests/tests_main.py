@@ -497,6 +497,8 @@ def main():
                 f"dari {bantuan.asal} "
                 f"ke {bantuan.tujuan}"
             )
+            print("\nAntrian tersisa:")
+            antrian_bantuan.tampilkan_antrian()
 
             # simpan ke log stack
             log_kirim.push(bantuan)
