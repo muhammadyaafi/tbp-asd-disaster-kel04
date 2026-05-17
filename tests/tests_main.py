@@ -1,6 +1,9 @@
-import numpy as np
+import numpy as np, time, random
 from typing import Optional, List, Dict, Tuple
 from dataclasses import dataclass 
+
+np.random.seed(47) 
+random.seed(47)
 
 LEVEL_BENCANA = {'KRITIS': 1, 'SEDANG': 2, 'RINGAN': 3} 
 JENIS_BANTUAN = ['MAKANAN', 'AIR', 'OBAT', 'SELIMUT', 'TENDA'] 
@@ -196,6 +199,25 @@ class PriorityQueueBantuan:
     def is_empty(self):
         return self._size == 0
     
+    def tampilkan_antrian(self):
+        if self.head is None:
+            print("Antrian kosong!")
+            return
+        level_nama = {v: k for k, v in LEVEL_BENCANA.items()}
+        curr = self.head
+        nomor = 1
+
+        while curr:
+            bantuan = curr.data
+            print(
+                f"Antrian {nomor}: "
+                f"{bantuan.jumlah} {bantuan.jenis} "
+                f"dari {bantuan.asal} ke {bantuan.tujuan}. "
+                f"Level {level_nama[bantuan.prioritas]}"
+            )
+            curr = curr.next
+            nomor += 1
+    
 class EdgeNode: 
     def __init__(self, dest, jarak, kapasitas): 
         self.dest = dest 
@@ -211,7 +233,7 @@ class GraphRute:
         """Big-O: O(1).""" 
         # pass  # TODO: implementasikan 
         if kode not in self._adj:
-            self._adj[kode] = set()
+            self._adj[kode] = None
     
     def tambah_rute(self, u, v, jarak, kapasitas): 
         """Big-O: O(1). Graf tidak berarah.""" 
@@ -228,7 +250,7 @@ class GraphRute:
         """Big-O: O(deg).""" 
         # pass  # TODO: implementasikan 
         hasil = []
-        curr = self.adj[u]
+        curr = self._adj[u]
         while curr:
             hasil.append(
                 (curr.dest, curr.jarak, curr.kapasitas)
@@ -246,7 +268,7 @@ class GraphRute:
         visited.add(depot)
         while not q.is_empty():
             current = q.dequeue()
-            edge = self.adj[current]
+            edge = self._adj[current]
             while edge:
                 tetangga = edge.dest
                 if tetangga not in visited:
@@ -393,7 +415,7 @@ def main():
     for u, v, j, k in edges: 
         graph.tambah_rute(u, v, j, k) 
     
-    print('Disaster Response Logistics System  Ketik BANTUAN untuk daftar perintah') 
+    print('Disaster Response Logistics System | Ketik BANTUAN untuk daftar perintah') 
     # TODO: implementasikan loop CLI 
     # Perintah: KIRIM <depot> <lokasi> <jenis> <jumlah> 
     # PROSES_BANTUAN, RUTE_OPTIMAL <depot> <tujuan> 
@@ -423,10 +445,16 @@ def main():
             depot = parts[1]
             tujuan = parts[2]
             jenis = parts[3].upper()
-            jumlah = int(parts[4])
-
+            if jenis not in JENIS_BANTUAN:
+                print("Jenis bantuan tidak valid!")
+                print(f"Bantuan yang Tersedia: {JENIS_BANTUAN}")
+                continue
+            try:
+                jumlah = int(parts[4])
+            except ValueError:
+                print("Jumlah harus angka!")
+                continue
             lokasi = bst_lokasi.search(tujuan)
-
             if lokasi is None:
                 print("Lokasi tidak ditemukan!")
                 continue
@@ -445,6 +473,7 @@ def main():
             antrian_bantuan.enqueue(bantuan)
 
             print(f"Bantuan masuk antrian prioritas.")
+            antrian_bantuan.tampilkan_antrian()
 
         # ==================================================
         # PROSES_BANTUAN
@@ -460,9 +489,10 @@ def main():
 
             print("\nBantuan diproses:")
             print(
-                bantuan.bantuan_id,
-                bantuan.jenis,
-                bantuan.tujuan
+                f"Mengirim {bantuan.jumlah} "
+                f"{bantuan.jenis} "
+                f"dari {bantuan.asal} "
+                f"ke {bantuan.tujuan}"
             )
 
             # simpan ke log stack
@@ -481,6 +511,12 @@ def main():
             depot = parts[1]
             tujuan = parts[2]
 
+            if depot not in graph._adj:
+                print("Depot tidak ditemukan!")
+                continue
+            if tujuan not in graph._adj:
+                print("Lokasi tidak ditemukan!")
+                continue
             dist, parent = dijkstra_logistik(graph, depot)
 
             if dist[tujuan] == float('inf'):
@@ -505,11 +541,27 @@ def main():
                 continue
 
             kode = parts[1]
-            level = int(parts[2])
+            level_baru = int(parts[2])
 
-            bst_lokasi.update_level(kode, level)
+            lokasi = bst_lokasi.search(kode)
+
+            if lokasi is None:
+                print("Lokasi tidak ditemukan!")
+                continue
+
+            level_lama = lokasi.level
+
+            bst_lokasi.update_level(kode, level_baru)
+
+            # ubah angka level menjadi teks
+            nama_level = {v: k for k, v in LEVEL_BENCANA.items()}
 
             print("Level berhasil diperbarui.")
+            print(
+                f"{kode} : "
+                f"{nama_level[level_lama]} -> "
+                f"{nama_level[level_baru]}"
+            )
 
         # ==================================================
         # TIDAK_TERJANGKAU
@@ -525,7 +577,7 @@ def main():
 
             visited = graph.bfs_akses(depot)
 
-            semua = set(graph.adj.keys())
+            semua = set(graph._adj.keys())
 
             tidak_terjangkau = semua - visited
 
@@ -544,6 +596,7 @@ def main():
         elif perintah == "LOG_PENGIRIMAN":
 
             logs = log_kirim.to_list()
+            logs.reverse()  # membalik urutan keterangan pengiriman
 
             if not logs:
                 print("Log kosong!")
@@ -551,12 +604,12 @@ def main():
 
             print("\nRiwayat Pengiriman:")
 
-            for item in logs:
+            for nomor, item in enumerate(logs, start=1):
 
                 print(
-                    f"ID:{item.bantuan_id} | "
-                    f"{item.jenis} | "
-                    f"{item.tujuan}"
+                    f"{nomor} : "
+                    f"{item.jumlah} {item.jenis} "
+                    f"dari {item.asal} ke {item.tujuan}"
                 )
 
         # ==================================================
@@ -575,7 +628,7 @@ def main():
                     f"{lok.kode} | "
                     f"{lok.nama} | "
                     f"Level:{lok.level} | "
-                    f"Pop:{lok.populasi}"
+                    f"Populasi:{lok.populasi}"
                 )
 
         # ==================================================
