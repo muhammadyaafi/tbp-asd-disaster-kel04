@@ -1,3 +1,5 @@
+import numpy as np, time, random 
+
 from data_structures.bst import BSTLokasi
 from data_structures.graph import GraphRute
 from data_structures.stack import Stack
@@ -7,6 +9,12 @@ from modules.disaster_system import Bantuan
 from modules.generate_peta import generate_peta_bencana
 from modules.algoritma_dijkstra import dijkstra_logistik
 from modules.reconstruct_path import reconstruct_path
+
+np.random.seed(47) 
+random.seed(47) 
+
+LEVEL_BENCANA = {'KRITIS': 1, 'SEDANG': 2, 'RINGAN': 3} 
+JENIS_BANTUAN = ['MAKANAN', 'AIR', 'OBAT', 'SELIMUT', 'TENDA'] 
 
 def main(): 
     bst_lokasi = BSTLokasi() 
@@ -22,7 +30,7 @@ def main():
     for u, v, j, k in edges: 
         graph.tambah_rute(u, v, j, k) 
     
-    print('Disaster Response Logistics System  Ketik BANTUAN untuk daftar perintah') 
+    print('Disaster Response Logistics System | Ketik BANTUAN untuk daftar perintah') 
     # TODO: implementasikan loop CLI 
     # Perintah: KIRIM <depot> <lokasi> <jenis> <jumlah> 
     # PROSES_BANTUAN, RUTE_OPTIMAL <depot> <tujuan> 
@@ -51,13 +59,22 @@ def main():
 
             depot = parts[1]
             tujuan = parts[2]
-            jenis = parts[3].upper()
-            jumlah = int(parts[4])
-
-            lokasi = bst_lokasi.search(tujuan)
-
-            if lokasi is None:
+            if depot not in graph._adj:
+                print("Depot tidak ditemukan!")
+                continue
+            if tujuan not in graph._adj:
                 print("Lokasi tidak ditemukan!")
+                continue
+            lokasi = bst_lokasi.search(tujuan)
+            jenis = parts[3].upper()
+            if jenis not in JENIS_BANTUAN:
+                print("Jenis bantuan tidak valid!")
+                print(f"Bantuan yang Tersedia: {JENIS_BANTUAN}")
+                continue
+            try:
+                jumlah = int(parts[4])
+            except ValueError:
+                print("Jumlah harus angka!")
                 continue
 
             bantuan_counter += 1
@@ -74,6 +91,7 @@ def main():
             antrian_bantuan.enqueue(bantuan)
 
             print(f"Bantuan masuk antrian prioritas.")
+            antrian_bantuan.tampilkan_antrian()
 
         # ==================================================
         # PROSES_BANTUAN
@@ -89,10 +107,13 @@ def main():
 
             print("\nBantuan diproses:")
             print(
-                bantuan.bantuan_id,
-                bantuan.jenis,
-                bantuan.tujuan
+                f"Mengirim {bantuan.jumlah} "
+                f"{bantuan.jenis} "
+                f"dari {bantuan.asal} "
+                f"ke {bantuan.tujuan}"
             )
+            print("\nAntrian tersisa:")
+            antrian_bantuan.tampilkan_antrian()
 
             # simpan ke log stack
             log_kirim.push(bantuan)
@@ -110,6 +131,12 @@ def main():
             depot = parts[1]
             tujuan = parts[2]
 
+            if depot not in graph._adj:
+                print("Depot tidak ditemukan!")
+                continue
+            if tujuan not in graph._adj:
+                print("Lokasi tidak ditemukan!")
+                continue
             dist, parent = dijkstra_logistik(graph, depot)
 
             if dist[tujuan] == float('inf'):
@@ -132,13 +159,30 @@ def main():
             if len(parts) != 3:
                 print("Format salah!")
                 continue
-
+            
             kode = parts[1]
-            level = int(parts[2])
+            lokasi = bst_lokasi.search(kode)
+            if lokasi is None:
+                print("Lokasi tidak ditemukan!")
+                continue
+            level_baru = int(parts[2])
+            if level_baru not in [1, 2, 3]:
+                print("Level harus 1-3!")
+                continue
 
-            bst_lokasi.update_level(kode, level)
+            level_lama = lokasi.level
+
+            bst_lokasi.update_level(kode, level_baru)
+
+            # ubah angka level menjadi teks
+            nama_level = {v: k for k, v in LEVEL_BENCANA.items()}
 
             print("Level berhasil diperbarui.")
+            print(
+                f"{kode} : "
+                f"{nama_level[level_lama]} -> "
+                f"{nama_level[level_baru]}"
+            )
 
         # ==================================================
         # TIDAK_TERJANGKAU
@@ -154,7 +198,7 @@ def main():
 
             visited = graph.bfs_akses(depot)
 
-            semua = set(graph.adj.keys())
+            semua = set(graph._adj.keys())
 
             tidak_terjangkau = semua - visited
 
@@ -173,6 +217,7 @@ def main():
         elif perintah == "LOG_PENGIRIMAN":
 
             logs = log_kirim.to_list()
+            logs.reverse()  # membalik urutan keterangan pengiriman
 
             if not logs:
                 print("Log kosong!")
@@ -180,12 +225,12 @@ def main():
 
             print("\nRiwayat Pengiriman:")
 
-            for item in logs:
+            for nomor, item in enumerate(logs, start=1):
 
                 print(
-                    f"ID:{item.bantuan_id} | "
-                    f"{item.jenis} | "
-                    f"{item.tujuan}"
+                    f"{nomor} : "
+                    f"{item.jumlah} {item.jenis} "
+                    f"dari {item.asal} ke {item.tujuan}"
                 )
 
         # ==================================================
@@ -204,7 +249,7 @@ def main():
                     f"{lok.kode} | "
                     f"{lok.nama} | "
                     f"Level:{lok.level} | "
-                    f"Pop:{lok.populasi}"
+                    f"Populasi:{lok.populasi}"
                 )
 
         # ==================================================
@@ -237,6 +282,15 @@ def main():
 
         else:
             print("Perintah tidak dikenali!")
+            print("\nPerintah yang tersedia:")
+            print("KIRIM <depot> <lokasi> <jenis> <jumlah>")
+            print("PROSES_BANTUAN")
+            print("RUTE_OPTIMAL <depot> <tujuan>")
+            print("UPDATE_LEVEL <kode> <level>")
+            print("TIDAK_TERJANGKAU <depot>")
+            print("LOG_PENGIRIMAN")
+            print("LAPORAN_BENCANA")
+            print("KELUAR")
 
 if __name__ == '__main__': 
     main()
