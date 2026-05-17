@@ -444,6 +444,13 @@ def main():
 
             depot = parts[1]
             tujuan = parts[2]
+            if depot not in graph._adj:
+                print("Depot tidak ditemukan!")
+                continue
+            if tujuan not in graph._adj:
+                print("Lokasi tidak ditemukan!")
+                continue
+            lokasi = bst_lokasi.search(tujuan)
             jenis = parts[3].upper()
             if jenis not in JENIS_BANTUAN:
                 print("Jenis bantuan tidak valid!")
@@ -453,10 +460,6 @@ def main():
                 jumlah = int(parts[4])
             except ValueError:
                 print("Jumlah harus angka!")
-                continue
-            lokasi = bst_lokasi.search(tujuan)
-            if lokasi is None:
-                print("Lokasi tidak ditemukan!")
                 continue
 
             bantuan_counter += 1
@@ -539,14 +542,15 @@ def main():
             if len(parts) != 3:
                 print("Format salah!")
                 continue
-
+            
             kode = parts[1]
-            level_baru = int(parts[2])
-
             lokasi = bst_lokasi.search(kode)
-
             if lokasi is None:
                 print("Lokasi tidak ditemukan!")
+                continue
+            level_baru = int(parts[2])
+            if level_baru not in [1, 2, 3]:
+                print("Level harus 1-3!")
                 continue
 
             level_lama = lokasi.level
@@ -661,6 +665,15 @@ def main():
 
         else:
             print("Perintah tidak dikenali!")
+            print("\nPerintah yang tersedia:")
+            print("KIRIM <depot> <lokasi> <jenis> <jumlah>")
+            print("PROSES_BANTUAN")
+            print("RUTE_OPTIMAL <depot> <tujuan>")
+            print("UPDATE_LEVEL <kode> <level>")
+            print("TIDAK_TERJANGKAU <depot>")
+            print("LOG_PENGIRIMAN")
+            print("LAPORAN_BENCANA")
+            print("KELUAR")
 
 if __name__ == '__main__': 
     main()
