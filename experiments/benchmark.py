@@ -220,6 +220,20 @@ def benchmark_bst(n):
 
     return t_insert, t_search
 
+# =========================================================
+# BENCHMARK BFS
+# =========================================================
+
+def benchmark_bfs(n):
+
+    graph = generate_graph(n)
+
+    # BFS
+    t_bfs = ukur_waktu(
+        lambda: graph.bfs_akses("L00000")
+    )
+
+    return t_bfs
 
 # =========================================================
 # BENCHMARK GRAPH + DIJKSTRA
@@ -261,6 +275,7 @@ def print_table_header():
         f"{'PQ DEQ':<15}"
         f"{'BST INS':<15}"
         f"{'BST SRC':<15}"
+        f"{'BFS:<15'}"
         f"{'DIJKSTRA':<15}"
     )
 
@@ -273,6 +288,7 @@ def print_result_row(
     deq,
     bst_ins,
     bst_src,
+    bfs,
     dijkstra
 ):
 
@@ -284,6 +300,7 @@ def print_result_row(
         f"{deq:<15.6f}"
         f"{bst_ins:<15.6f}"
         f"{bst_src:<15.6f}"
+        f"{bfs:<15.6f}"
         f"{dijkstra:<15.6f}"
     )
 
@@ -309,6 +326,9 @@ def main():
         # BST
         bst_insert_time, bst_search_time = benchmark_bst(n)
 
+        #BFS
+        bfs_time = benchmark_bfs(n)
+
         # DIJKSTRA
         dijkstra_time = benchmark_graph_dijkstra(n)
 
@@ -321,6 +341,7 @@ def main():
             deq_time,
             bst_insert_time,
             bst_search_time,
+            bfs_time,
             dijkstra_time
         )
 
