@@ -1,4 +1,5 @@
 from data_structures.linked_list import LLNode
+from modules.disaster_system import LEVEL_BENCANA
 
 class PriorityQueueBantuan: 
     """Lokasi KRITIS (level=1) selalu dilayani lebih dulu.""" 
@@ -35,3 +36,22 @@ class PriorityQueueBantuan:
 
     def is_empty(self):
         return self._size == 0
+    
+    def tampilkan_antrian(self):
+        if self.head is None:
+            print("Antrian kosong!")
+            return
+        level_nama = {v: k for k, v in LEVEL_BENCANA.items()}
+        curr = self.head
+        nomor = 1
+
+        while curr:
+            bantuan = curr.data
+            print(
+                f"Antrian {nomor}: "
+                f"{bantuan.jumlah} {bantuan.jenis} "
+                f"dari {bantuan.asal} ke {bantuan.tujuan}. "
+                f"Level {level_nama[bantuan.prioritas]}"
+            )
+            curr = curr.next
+            nomor += 1
