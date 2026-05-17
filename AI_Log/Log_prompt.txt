@@ -977,3 +977,86 @@ Sesuai panduan proyek, penggunaan Stack berbasis Linked List ini memberikan efis
 . Hal ini memastikan sistem logistik bantuan bencana tetap cepat meskipun ribuan transaksi bantuan telah tercatat
 .
 
+pada topik 9 bagaimana bagaimana memprogram bagian modul bst registry lokasi pada dengan spesifikasi "BST dengan kunci = kode_lokasi. Menyimpan data tiap lokasi: kode, nama, level,
+populasi, status. Mendukung: insert, search, update_level, inorder (daftar terurut).
+Big-O: O(log n) rata-rata. "
+
+Untuk mengimplementasikan modul BST Registry Lokasi pada Topik 9 (Sistem Logistik Tanggap Bencana), Anda harus membangun struktur data Binary Search Tree dari nol dengan menggunakan kode_lokasi sebagai kunci pengurutan
+.
+Berikut adalah panduan langkah demi langkah untuk memprogram modul tersebut berdasarkan spesifikasi yang diberikan:
+1. Definisi Struktur Data Lokasi
+Pertama, gunakan dataclass Lokasi yang sudah disediakan di starter code untuk menyimpan atribut tiap lokasi bencana
+.
+@dataclass
+class Lokasi:
+    kode: str      # Kunci utama untuk BST (misal: 'L01')
+    nama: str      # Nama lokasi
+    level: int     # Level bencana (1=KRITIS, 2=SEDANG, 3=RINGAN)
+    populasi: int  # Jumlah penduduk terdampak
+    status: int = 0 # Status logistik (0=BELUM, 1=TERKIRIM)
+2. Implementasi Node dan Kelas BST
+Gunakan kerangka kelas BSTNodeLok dan BSTLokasi dari sumber
+. Ingat bahwa implementasi harus dilakukan tanpa library luar
+.
+A. Node BST
+Setiap node akan menyimpan satu objek Lokasi dan referensi ke anak kiri serta kanan
+.
+class BSTNodeLok:
+    def __init__(self, lokasi: Lokasi):
+        self.lokasi = lokasi
+        self.left = None
+        self.right = None
+B. Operasi Utama pada BSTLokasi
+Berikut adalah logika untuk mengisi metode-metode yang wajib ada
+:
+insert(lokasi): Masukkan data lokasi baru secara rekursif atau iteratif dengan membandingkan kode_lokasi (string comparison)
+. Jika kode lebih kecil dari node saat ini, ke kiri; jika lebih besar, ke kanan
+.
+search(kode): Cari node berdasarkan kode_lokasi dengan logika pencarian biner
+. Operasi ini memiliki efisiensi rata-rata O(log n)
+.
+update_level(kode, level_baru): Cari node menggunakan fungsi search, lalu perbarui atribut level pada objek Lokasi di dalam node tersebut
+.
+inorder(): Lakukan traversal in-order (Kiri-Akar-Kanan) untuk menghasilkan daftar lokasi yang terurut secara alfabetis berdasarkan kodenya
+.
+3. Contoh Logika Program
+Berikut adalah gambaran implementasi metode insert dan search secara rekursif:
+class BSTLokasi:
+    def __init__(self):
+        self.root = None
+
+    def insert(self, lokasi: Lokasi):
+        if self.root is None:
+            self.root = BSTNodeLok(lokasi)
+        else:
+            self._insert_recursive(self.root, lokasi)
+
+    def _insert_recursive(self, node, lokasi):
+        if lokasi.kode < node.lokasi.kode:
+            if node.left is None:
+                node.left = BSTNodeLok(lokasi)
+            else:
+                self._insert_recursive(node.left, lokasi)
+        elif lokasi.kode > node.lokasi.kode:
+            if node.right is None:
+                node.right = BSTNodeLok(lokasi)
+            else:
+                self._insert_recursive(node.right, lokasi)
+
+    def search(self, kode: str) -> Optional[Lokasi]:
+        curr = self.root
+        while curr:
+            if kode == curr.lokasi.kode:
+                return curr.lokasi
+            curr = curr.left if kode < curr.lokasi.kode else curr.right
+        return None
+4. Analisis Kompleksitas (Big-O)
+Berdasarkan panduan, Anda wajib mencantumkan analisis Big-O untuk setiap operasi
+:
+Insert/Search/Update: Rata-rata O(log n), namun bisa menjadi O(n) jika pohon tidak seimbang (data dimasukkan secara berurutan)
+.
+Inorder Traversal: O(n) karena harus mengunjungi setiap node tepat satu kali
+.
+Pastikan modul ini terintegrasi dengan modul lain seperti Graph Jaringan Rute untuk memvalidasi apakah lokasi yang terdaftar di BST dapat dijangkau dari depot
+.
+Apakah Anda ingin saya menjelaskan bagaimana cara menangani skenario terburuk (worst-case) jika data lokasi dimasukkan secara berurutan?
