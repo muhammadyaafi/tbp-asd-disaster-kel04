@@ -1208,3 +1208,104 @@ Kasus Penggunaan: Di Topik 10, ini digunakan untuk simulasi gudang pangan guna m
 .
 Catatan untuk Topik 9: Jika kamu tetap mengerjakan Topik 9 (Disaster), pastikan kamu menggunakan Priority Queue berbasis Linked List yang sebelumnya kita bahas, karena sistem bencana membutuhkan pengurutan lokasi berdasarkan level KRITIS
 . Circular Queue biasanya tidak mendukung prioritas secara langsung tanpa modifikasi tambahan.
+
+buat program bst nya
+
+Berikut adalah implementasi lengkap program BST Registry Lokasi untuk Topik 9 (Disaster Response Logistics System) sesuai dengan spesifikasi teknis dan starter code yang ada di sumber
+:
+from dataclasses import dataclass
+from typing import Optional, List
+
+# 1. Definisi Struktur Data Lokasi [1]
+@dataclass
+class Lokasi:
+    kode: str          # Kunci utama BST (misal: 'L01')
+    nama: str
+    level: int         # 1=KRITIS, 2=SEDANG, 3=RINGAN
+    populasi: int
+    status: int = 0    # 0=BELUM, 1=TERKIRIM
+
+# 2. Implementasi Node BST [2]
+class BSTNodeLok:
+    def __init__(self, lokasi: Lokasi):
+        self.lokasi = lokasi
+        self.left: Optional['BSTNodeLok'] = None
+        self.right: Optional['BSTNodeLok'] = None
+
+# 3. Implementasi Kelas BST Registry Lokasi [3]
+class BSTLokasi:
+    def __init__(self):
+        self.root: Optional[BSTNodeLok] = None
+
+    def insert(self, lokasi: Lokasi) -> None:
+        """
+        Menyisipkan lokasi baru berdasarkan kode_lokasi.
+        Big-O: Rata-rata O(log n), Terburuk O(n).
+        """
+        if self.root is None:
+            self.root = BSTNodeLok(lokasi)
+        else:
+            self._insert_recursive(self.root, lokasi)
+
+    def _insert_recursive(self, current: BSTNodeLok, lokasi: Lokasi) -> None:
+        if lokasi.kode < current.lokasi.kode:
+            if current.left is None:
+                current.left = BSTNodeLok(lokasi)
+            else:
+                self._insert_recursive(current.left, lokasi)
+        elif lokasi.kode > current.lokasi.kode:
+            if current.right is None:
+                current.right = BSTNodeLok(lokasi)
+            else:
+                self._insert_recursive(current.right, lokasi)
+
+    def search(self, kode: str) -> Optional[Lokasi]:
+        """
+        Mencari data lokasi berdasarkan kode unik.
+        Big-O: Rata-rata O(log n), Terburuk O(n).
+        """
+        curr = self.root
+        while curr:
+            if kode == curr.lokasi.kode:
+                return curr.lokasi
+            curr = curr.left if kode < curr.lokasi.kode else curr.right
+        return None
+
+    def update_level(self, kode: str, level_baru: int) -> bool:
+        """
+        Mencari lokasi dan memperbarui tingkat keparahan bencana.
+        Big-O: O(log n) rata-rata.
+        """
+        lokasi = self.search(kode)
+        if lokasi:
+            lokasi.level = level_baru
+            return True
+        return False
+
+    def inorder(self) -> List[Lokasi]:
+        """
+        Menghasilkan daftar lokasi yang terurut secara alfabetis (kode).
+        Big-O: O(n).
+        """
+        hasil = []
+        self._inorder_recursive(self.root, hasil)
+        return hasil
+
+    def _inorder_recursive(self, current: Optional[BSTNodeLok], hasil: List[Lokasi]) -> None:
+        if current:
+            self._inorder_recursive(current.left, hasil)
+            hasil.append(current.lokasi)
+            self._inorder_recursive(current.right, hasil)
+Penjelasan Program:
+Struktur Data: Menggunakan dataclass untuk menyimpan profil lengkap lokasi bencana sesuai standar pendaftaran
+.
+Operasi insert: Menggunakan perbandingan string pada kode_lokasi untuk menentukan posisi node (kiri untuk kode lebih kecil, kanan untuk lebih besar)
+.
+Operasi search: Melakukan pencarian biner dengan efisiensi rata-rata O(log n), yang sangat krusial untuk validasi rute pada modul Dijkstra
+.
+Operasi update_level: Memanfaatkan fungsi search untuk menemukan data secara cepat sebelum melakukan pembaruan status urgensi di lapangan
+.
+Operasi inorder: Mengunjungi pohon dengan urutan Kiri-Akar-Kanan untuk mendapatkan daftar lokasi yang terurut rapi berdasarkan kodenya bagi kepentingan pelaporan
+.
+Program ini telah memenuhi syarat pengerjaan tanpa library luar dan memiliki analisis Big-O pada setiap operasi utamanya
+.
