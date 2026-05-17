@@ -275,7 +275,7 @@ def print_table_header():
         f"{'PQ DEQ':<15}"
         f"{'BST INS':<15}"
         f"{'BST SRC':<15}"
-        f"{'BFS:<15'}"
+        f"{'BFS':<15}"
         f"{'DIJKSTRA':<15}"
     )
 
