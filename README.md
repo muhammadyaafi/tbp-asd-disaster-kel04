@@ -41,18 +41,18 @@ Program dapat dijalankan melalui Command Line Interface (CLI).
 
 # Kompleksitas Waktu (Big-O)
 
-| Fitur / Operasi Utama                    | Struktur Data / Algoritma    | Kompleksitas                          |
-| ---------------------------------------- | ---------------------------- | ------------------------------------- |
-| Menambahkan lokasi                       | Binary Search Tree (BST)     | O(log n) rata-rata  - O(n) worst-case |
-| Mencari lokasi                           | Binary Search Tree (BST)     | O(log n) rata-rata                    |
-| Menambahkan bantuan ke antrian prioritas | Priority Queue (Linked List) | O(n)                                  |
-| Memproses bantuan prioritas tertinggi    | Priority Queue               | O(1)                                  |
-| Menyimpan riwayat pengiriman             | Stack                        | O(1)                                  |
-| Menampilkan riwayat pengiriman           | Stack Traversal              | O(n)                                  |
-| Menambahkan rute graph                   | Adjacency List               | O(1)                                  |
-| Mencari lokasi tidak terjangkau          | BFS                          | O(V + E)                              |
-| Mencari rute optimal                     | Dijkstra                     | O(V² + E)                             |
-| Menampilkan laporan lokasi               | Inorder Traversal BST        | O(n)                                  |
+| Fitur / Operasi Utama                    | Struktur Data / Algoritma    | Kompleksitas                         |
+| ---------------------------------------- | ---------------------------- | ------------------------------------ |
+| Menambahkan lokasi                       | Binary Search Tree (BST)     | O(log n) rata-rata - O(n) worst-case |
+| Mencari lokasi                           | Binary Search Tree (BST)     | O(log n) rata-rata - O(n) worst-case |
+| Menambahkan bantuan ke antrian prioritas | Priority Queue (Linked List) | O(n)                                 |
+| Memproses bantuan prioritas tertinggi    | Priority Queue               | O(1)                                 |
+| Menyimpan riwayat pengiriman             | Stack                        | O(1)                                 |
+| Menampilkan riwayat pengiriman           | Stack Traversal              | O(n)                                 |
+| Menambahkan rute graph                   | Adjacency List               | O(1)                                 |
+| Mencari lokasi tidak terjangkau          | BFS                          | O(V + E)                             |
+| Mencari rute optimal                     | Dijkstra                     | O(V² + E)                            |
+| Menampilkan laporan lokasi               | Inorder Traversal BST        | O(n)                                 |
 
 ## Keterangan
 
