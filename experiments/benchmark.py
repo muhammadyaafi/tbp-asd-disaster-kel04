@@ -25,9 +25,9 @@ from modules.algoritma_dijkstra import dijkstra_logistik
 # =========================================================
 
 DATASET_SIZES = {
-    "KECIL": 100,
-    "SEDANG": 1000,
-    "BESAR": 5000
+    100: 100,
+    1000: 1000,
+    10000: 10000
 }
 
 random.seed(47)
