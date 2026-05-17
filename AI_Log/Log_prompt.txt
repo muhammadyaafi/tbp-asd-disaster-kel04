@@ -278,3 +278,702 @@ class Queue:
         if self.is_empty():
             self._tail = None   # queue kosong, tail tidak valid lagi
         return answer
+
+
+
+Sumber-sumber ini merinci panduan Team Based Project untuk mata kuliah Algoritma dan Struktur Data di program studi Teknik Elektro UNY. Mahasiswa diwajibkan bekerja dalam kelompok beranggotakan 4–5 orang untuk membangun aplikasi nyata menggunakan bahasa Python 3 tanpa bantuan pustaka eksternal. Dokumen ini menetapkan persyaratan teknis yang ketat, seperti integrasi minimal tiga jenis struktur data, analisis kompleksitas Big-O, dan pembuktian performa melalui eksperimen data. Terdapat dua pilihan topik utama yang disediakan, yakni sistem manajemen antrean rumah sakit dan navigasi kampus cerdas. Selain aspek teknis pemrograman, tersedia pula infografis kolaborasi GitHub yang menjelaskan alur kerja tim mulai dari pengaturan repositori hingga proses penyerahan tugas akhir. Evaluasi proyek mencakup kualitas kode, laporan tertulis, serta presentasi hasil kerja yang menyumbang bobot nilai 50%.
+
+Apa saja syarat utama pengerjaan Team Based Project ini?
+Bagaimana struktur data diintegrasikan dalam sistem rumah sakit pintar?
+Bagaimana panduan kolaborasi tim menggunakan GitHub untuk proyek ini?
+Kamis, 14 Mei
+aku ingin mengisi bagian kodingan yang stack tolong bantu
+
+Berdasarkan panduan proyek yang diberikan, berikut adalah implementasi Stack berbasis Singly Linked List yang harus dikerjakan dari nol (tanpa library eksternal) sesuai dengan ketentuan teknis
+.
+Implementasi ini mencakup kelas LLNode sebagai penyusun struktur data dan kelas Stack dengan operasi utamanya.
+Implementasi Kodingan Stack
+# -- Node untuk Linked List --
+class LLNode:
+    def __init__(self, data=None):
+        self.data = data
+        self.next = None # Mengarah ke node di bawahnya dalam stack [3, 4]
+
+# -- Implementasi Stack (LIFO) --
+class Stack:
+    """Stack berbasis Singly Linked List, LIFO."""
+    def __init__(self, kapasitas=None):
+        self.top = None      # Menunjuk ke elemen teratas [2, 4]
+        self._size = 0       # Melacak jumlah elemen [2, 5]
+        self.kapasitas = kapasitas # Opsional: untuk Topik 3 (kapasitas 10) atau Topik 4 (kapasitas 20) [6, 7]
+
+    def push(self, data) -> bool:
+        """Big-O waktu: O(1) - Menambahkan elemen ke posisi teratas [8, 9]."""
+        # Cek jika ada batasan kapasitas (seperti pada Topik 3 atau 4) [6, 10]
+        if self.kapasitas is not None and self._size >= self.kapasitas:
+            return False 
+        
+        new_node = LLNode(data)
+        new_node.next = self.top # Node baru menunjuk ke top lama
+        self.top = new_node      # Top sekarang adalah node baru [5]
+        self._size += 1
+        return True
+
+    def pop(self):
+        """Big-O waktu: O(1) - Mengambil dan menghapus elemen teratas [8, 9]."""
+        if self.is_empty():
+            return None
+        
+        popped_node = self.top
+        self.top = self.top.next # Geser top ke node di bawahnya [5]
+        self._size -= 1
+        return popped_node.data
+
+    def peek(self):
+        """Big-O waktu: O(1) - Melihat elemen teratas tanpa menghapusnya [2, 5]."""
+        return self.top.data if self.top else None
+
+    def is_empty(self) -> bool:
+        """Mengecek apakah stack kosong."""
+        return self._size == 0
+
+    def __len__(self) -> int:
+        """Mengembalikan ukuran stack saat ini."""
+        return self._size
+Penjelasan Detail Sesuai Sumber:
+Logika LIFO: Stack ini mengikuti prinsip Last-In-First-Out, di mana data yang terakhir masuk akan menjadi yang pertama keluar
+.
+Analisis Big-O: Semua operasi utama (push, pop, peek) wajib memiliki kompleksitas O(1) karena hanya memanipulasi pointer pada bagian top saja
+.
+Variasi Topik:
+Jika Anda mengambil Topik 1 (Smart Hospital), stack ini digunakan untuk fitur undo tindakan dokter
+.
+Jika Anda mengambil Topik 3 (E-Commerce), Anda perlu menambahkan logika untuk membatasi riwayat maksimal 10 transaksi terakhir
+.
+Jika Anda mengambil Topik 5 (Expression Evaluator), stack ini digunakan untuk algoritma Shunting-Yard (konversi infix ke postfix)
+.
+Tips Tambahan: Pastikan Anda menyertakan analisis Big-O ini dalam komentar docstring kodingan Anda dan dalam laporan akhir, karena hal tersebut merupakan komponen penilaian utama (skor 50% partisipatif)
+.
+tolong jangan sampai adakode yang tidak ada di buku
+
+Sesuai permintaan Anda untuk hanya menggunakan kode yang ada di dalam buku, berikut adalah implementasi Stack berbasis Singly Linked List yang diambil secara eksis dari buku Data Structures and Algorithms in Python karya Michael T. Goodrich dkk., khususnya pada Chapter 7.1.1
+.
+Buku tersebut mendefinisikan kelas pengecualian Empty terlebih dahulu untuk menangani kondisi stack kosong, kemudian kelas LinkedStack.
+1. Definisi Exception Empty
+Kode ini diperlukan agar stack dapat memunculkan pesan kesalahan yang sesuai jika metode pop atau top dipanggil pada stack yang kosong
+.
+class Empty(Exception):
+    """Error attempting to access an element from an empty container."""
+    pass
+2. Implementasi LinkedStack
+Metode ini menggunakan konsep nested class _Node untuk menyimpan elemen dan referensi ke node berikutnya
+. Top dari stack selalu berada di bagian head dari linked list agar operasi penambahan dan penghapusan dapat dilakukan dalam waktu konstan O(1)
+.
+class LinkedStack:
+    """LIFO Stack implementation using a singly linked list for storage."""
+
+    #-------------------------- nested Node class --------------------------
+    class _Node:
+        """Lightweight, nonpublic class for storing a singly linked node."""
+        __slots__ = '_element', '_next' # streamline memory usage
+
+        def __init__(self, element, next): # initialize node’s fields
+            self._element = element # reference to user’s element
+            self._next = next       # reference to next node
+
+    #------------------------------- stack methods -------------------------------
+    def __init__(self):
+        """Create an empty stack."""
+        self._head = None           # reference to the head node
+        self._size = 0              # number of stack elements
+
+    def __len__(self):
+        """Return the number of elements in the stack."""
+        return self._size
+
+    def is_empty(self):
+        """Return True if the stack is empty."""
+        return self._size == 0
+
+    def push(self, e):
+        """Add element e to the top of the stack."""
+        self._head = self._Node(e, self._head) # create and link a new node
+        self._size += 1
+
+    def top(self):
+        """Return (but do not remove) the element at the top of the stack.
+        Raise Empty exception if the stack is empty.
+        """
+        if self.is_empty():
+            raise Empty('Stack is empty')
+        return self._head._element  # top of stack is at head of list
+
+    def pop(self):
+        """Remove and return the element from the top of the stack (i.e., LIFO).
+        Raise Empty exception if the stack is empty.
+        """
+        if self.is_empty():
+            raise Empty('Stack is empty')
+        answer = self._head._element
+        self._head = self._head._next # bypass the former top node
+        self._size -= 1
+        return answer
+Penjelasan Penting Berdasarkan Buku:
+Encapsulation: Buku ini menggunakan konvensi satu garis bawah (misal: _head, _size) untuk menandakan bahwa anggota tersebut bersifat internal (nonpublic)
+.
+Kompleksitas Waktu: Semua operasi di atas (push, pop, top, is_empty, dan __len__) memiliki performa O(1) dalam skenario terburuk karena tidak ada proses resizing seperti pada stack berbasis array
+.
+Efisiensi Memori: Penggunaan __slots__ pada kelas _Node bertujuan untuk menghemat penggunaan memori dengan membatasi atribut yang diizinkan dalam setiap instance node
+.
+Jika Anda mengisi starter code dari panduan proyek (misal Topik 1 atau Topic 5), Anda bisa memetakan fungsi peek() pada proyek Anda ke fungsi top() dari buku ini karena fungsinya sama, yaitu melihat elemen teratas tanpa menghapusnya
+.
+ini sudah tentang distarter response logistics system ?
+
+Ya, benar. Topik 9 dalam panduan proyek Anda adalah Disaster Response Logistics System (Sistem Logistik Tanggap Bencana)
+.
+Dalam sistem ini, Stack yang kita bahas sebelumnya digunakan secara spesifik untuk Modul 4: Stack Log Pengiriman
+,
+. Berikut adalah rincian relevansinya dengan sistem tersebut:
+Kegunaan Stack di Topik 9: Stack ini berfungsi untuk menyimpan semua riwayat transaksi pengiriman bantuan dengan prinsip LIFO (Last-In-First-Out)
+.
+Fitur Utama:
+LOG_PENGIRIMAN: Menampilkan seluruh riwayat pengiriman dari yang terbaru
+.
+ROLLBACK: Membatalkan pengiriman terakhir dan mengembalikan stok logistik ke depot
+.
+Ketentuan Teknis: Proyek mewajibkan implementasi Stack dari nol (tanpa library), dan kodingan LinkedStack dari buku Goodrich yang saya berikan sebelumnya sudah memenuhi standar ini karena berbasis Linked List dengan kompleksitas O(1) untuk operasi push dan pop
+,
+,
+.
+Sebagai tambahan, dalam starter code Topik 9, Anda akan menemukan inisialisasi log_kirim = Stack() di dalam fungsi main()
+. Kodingan dari buku tersebut adalah isi yang tepat untuk mendefinisikan kelas Stack tersebut agar sistem logistik Anda dapat berfungsi sesuai panduan
+.
+sudah di sesuaikan dengan kemampuanku yang masih pemula ?
+
+Ya, implementasi tersebut sudah sangat sesuai untuk kemampuan tingkat pemula, khususnya bagi mahasiswa semester 2 yang sedang menempuh mata kuliah Algoritma dan Struktur Data
+.
+Berikut adalah alasan mengapa kodingan dari buku Goodrich tersebut cocok untuk pemula:
+Dirancang untuk Level Dasar: Buku Data Structures and Algorithms in Python secara eksplisit dinyatakan dalam pengantarnya bahwa buku ini dirancang untuk penggunaan pada kursus struktur data tingkat pemula (beginning-level)
+.
+Logika yang Terstruktur: Kode LinkedStack menggunakan konsep nested class (kelas di dalam kelas) untuk _Node, yang merupakan cara paling standar dan bersih untuk mempelajari bagaimana data disimpan dalam memori menggunakan pointer atau referensi
+.
+Tanpa "Sihir" Library Kompleks: Sesuai aturan proyek Anda yang melarang penggunaan library eksternal, kode ini membangun struktur data benar-benar dari nol menggunakan kelas Python dasar
+. Ini membantu pemula memahami apa yang terjadi "di balik layar" sebuah fungsi push atau pop
+.
+Efisiensi yang Terukur: Meskipun kodenya sederhana, ia memiliki efisiensi O(1), yang berarti operasinya sangat cepat dan tidak akan melambat meskipun jumlah data log pengiriman bantuan bencana Anda bertambah banyak
+.
+Mengikuti Standar Akademik: Dengan menggunakan referensi buku teks utama, Anda sudah mengikuti jalur pedagogis yang benar, mulai dari dasar pemrograman objek hingga manajemen memori yang mendasari struktur data tersebut
+.
+Untuk Topik 9 (Disaster Response Logistics System), Anda cukup memasukkan logika tersebut ke dalam bagian class Stack: yang ada di starter code Anda
+. Dengan begitu, sistem Anda akan memiliki fondasi yang kuat, mudah dipahami saat presentasi, dan mendapatkan skor tinggi dalam aspek "Kualitas Kode" karena mengikuti pola desain yang profesional namun tetap mendasar
+.
+bisa ngga keterangannya jadi bahasa indonesia
+
+Tentu, ini adalah implementasi Stack berbasis Singly Linked List dari buku Goodrich dkk. (Chapter 7.1.1) yang sudah saya terjemahkan seluruh keterangannya ke dalam Bahasa Indonesia agar lebih mudah kamu pahami sebagai pemula:
+1. Definisi Pengecualian (Exception)
+Kode ini digunakan untuk memunculkan pesan kesalahan jika kamu mencoba mengambil data dari stack yang sedang kosong
+.
+class Empty(Exception):
+    """Error saat mencoba mengakses elemen dari kontainer yang kosong."""
+    pass
+2. Implementasi Kelas Stack (LinkedStack)
+Berikut adalah kode lengkap dengan penjelasan dalam Bahasa Indonesia. Struktur ini mengikuti standar buku teks namun disesuaikan dengan kebutuhan Topik 9 (Logistik Bencana) untuk mencatat riwayat pengiriman
+.
+class LinkedStack:
+    """Implementasi Stack LIFO menggunakan singly linked list untuk penyimpanan."""
+
+    #-------------------------- Kelas Node Internal --------------------------
+    class _Node:
+        """Kelas internal ringan untuk menyimpan node linked list satu arah."""
+        __slots__ = '_element', '_next' # Mengoptimalkan penggunaan memori [2, 5]
+
+        def __init__(self, element, next): 
+            self._element = element # Referensi ke data kiriman bantuan [5]
+            self._next = next       # Referensi ke node di bawahnya
+
+    #------------------------------- Metode Stack -------------------------------
+    def __init__(self):
+        """Membuat stack logistik yang kosong."""
+        self._head = None           # Menunjuk ke node teratas (paling baru) [2]
+        self._size = 0              # Melacak jumlah log pengiriman
+
+    def __len__(self):
+        """Mengembalikan jumlah data pengiriman dalam stack."""
+        return self._size
+
+    def is_empty(self):
+        """Mengembalikan True jika belum ada pengiriman yang dicatat."""
+        return self._size == 0
+
+    def push(self, e):
+        """Menambahkan data pengiriman baru ke bagian teratas stack."""
+        # Buat node baru dan hubungkan ke head yang lama
+        self._head = self._Node(e, self._head) 
+        self._size += 1
+
+    def top(self):
+        """Melihat data pengiriman teratas tanpa menghapusnya.
+        Memunculkan pengecualian Empty jika stack kosong.
+        """
+        if self.is_empty():
+            raise Empty('Stack kosong: Tidak ada log yang bisa dilihat')
+        return self._head._element  # Bagian head adalah posisi teratas stack [2]
+
+    def pop(self):
+        """Menghapus dan mengembalikan data pengiriman paling terakhir (LIFO).
+        Sangat berguna untuk fitur ROLLBACK pada sistem logistik bencana. [4]
+        """
+        if self.is_empty():
+            raise Empty('Stack kosong: Tidak ada pengiriman untuk dibatalkan')
+        
+        answer = self._head._element
+        self._head = self._head._next # Menggeser head ke node sebelumnya [3]
+        self._size -= 1
+        return answer
+Penjelasan Tambahan untuk Proyekmu (Topik 9):
+Metode push: Kamu gunakan saat perintah KIRIM dijalankan untuk mencatat transaksi ke dalam log_kirim
+.
+Metode pop: Digunakan secara khusus untuk fitur ROLLBACK, yaitu membatalkan pengiriman terakhir dan mengembalikan stok ke depot
+.
+Efisiensi: Semua operasi di atas berjalan dalam waktu O(1)
+. Ini berarti sistemmu tetap sangat cepat meskipun log pengiriman bencana mencapai ribuan data, karena program tidak perlu membongkar seluruh list untuk menambah atau menghapus data teratas
+.
+Dengan keterangan Bahasa Indonesia ini, kamu akan lebih mudah menjelaskan cara kerja kodinganmu saat presentasi nanti (Pertemuan 15)
+.
+Jumat, 15 Mei
+import numpy as np, time, random
+from dataclasses import dataclass
+from typing import Optional, List, Dict, Tuple
+
+
+np.random.seed(47)
+random.seed(47)
+
+
+LEVEL_BENCANA = {'KRITIS': 1, 'SEDANG': 2, 'RINGAN': 3}
+JENIS_BANTUAN = ['MAKANAN', 'AIR', 'OBAT', 'SELIMUT', 'TENDA']
+
+
+@dataclass
+class Lokasi:
+kode: str
+nama: str
+level: int
+populasi: int
+status: int = 0
+
+
+@dataclass
+class Bantuan:
+bantuan_id: int
+jenis: str
+jumlah: int
+asal: str
+tujuan: str
+prioritas: int
+
+
+class LLNode:
+def init(self, data=None):
+self.data = data
+self.next = None
+
+
+class LLNode:
+def init(self, data=None):
+self.data = data
+self.next = None
+
+
+class CircularQueue:
+"""
+Circular Queue berbasis array (fixed capacity).
+Mensimulasikan buffer FIFO stok gudang.
+FIFO = produk pertama masuk, pertama keluar (hindari kadaluarsa).
+"""
+def init(self, kapasitas):
+self.kapasitas = kapasitas
+self.buffer = [None] * kapasitas
+self.front = 0
+self.rear = 0
+self._size = 0
+def enqueue(self, produk):
+"""Big-O: O(1). Kembalikan False jika penuh."""
+pass # TODO: implementasikan logika circular
+
+
+def dequeue(self):
+    """Big-O: O(1). Ambil produk terlama (FIFO)."""
+    pass # TODO: implementasikan
+
+def is_full(self):
+    return self._size == self.kapasitas
+
+def is_empty(self):
+    return self._size == 0
+
+class PriorityQueueBantuan:
+"""Lokasi KRITIS (level=1) selalu dilayani lebih dulu."""
+def init(self):
+self.head = None
+self._size = 0
+
+
+def enqueue(self, bantuan):
+    """Big-O: O(n) insertion terurut prioritas."""
+    pass  # TODO: implementasikan
+
+def dequeue(self):
+    """Big-O: O(1)."""
+    pass  # TODO: implementasikan
+
+def __len__(self):
+    return self._size
+
+class Stack:
+def init(self):
+self.top = None
+self._size = 0
+
+
+def push(self, data):
+    pass  # TODO: Big-O O(1)
+
+def pop(self):
+    pass  # TODO: Big-O O(1)
+
+def peek(self):
+    return self.top.data if self.top else None
+
+def to_list(self):
+    pass  # TODO: kembalikan list dari top ke bottom
+
+class BSTNodeLok:
+def init(self, lokasi):
+self.lokasi = lokasi
+self.left = self.right = None  sebentar masih ada yang belum
+
+Tentu, mari kita isi bagian kelas Stack pada kodinganmu. Sesuai permintaanmu, saya akan menggunakan logika murni dari buku Michael T. Goodrich dkk. (Chapter 7.1.1) yang mengimplementasikan Stack menggunakan Singly Linked List
+.
+Implementasi ini menjamin operasi push dan pop berjalan dalam waktu konstan O(1), yang sangat penting untuk efisiensi sistem logistik bencanamu
+.
+Implementasi Kelas Stack
+Gunakan kode berikut untuk mengisi bagian class Stack pada starter code milikmu:
+class Stack: 
+    def __init__(self): 
+        # Inisialisasi stack kosong sesuai standar buku [2]
+        self.top = None # Buku menggunakan istilah '_head'
+        self._size = 0 
+    
+    def is_empty(self):
+        """Mengembalikan True jika stack kosong [2]."""
+        return self._size == 0
+
+    def push(self, data): 
+        """Big-O: O(1) - Menambahkan elemen di posisi teratas [2, 3]."""
+        # Membuat node baru dan menghubungkannya ke top yang lama
+        new_node = LLNode(data)
+        new_node.next = self.top
+        self.top = new_node
+        self._size += 1 
+    
+    def pop(self): 
+        """Big-O: O(1) - Menghapus dan mengambil elemen teratas [3, 4]."""
+        if self.is_empty():
+            return None # Menghindari error jika stack kosong
+        
+        answer = self.top.data
+        self.top = self.top.next # Menggeser top ke node di bawahnya
+        self._size -= 1
+        return answer 
+    
+    def peek(self): 
+        """Melihat elemen teratas tanpa menghapusnya (sama dengan top() di buku) [2]."""
+        return self.top.data if self.top else None 
+    
+    def to_list(self): 
+        """Mengonversi stack menjadi list untuk keperluan log pengiriman [5]."""
+        # Melakukan traversal (pointer hopping) dari top ke bottom
+        result = []
+        curr = self.top
+        while curr is not None:
+            result.append(curr.data)
+            curr = curr.next
+        return result
+
+    def __len__(self):
+        return self._size
+Penjelasan Singkat untuk Proyekmu (Topik 9):
+LIFO (Last-In-First-Out): Stack ini akan menyimpan riwayat pengiriman bantuanmu. Data yang paling baru dimasukkan (push) akan menjadi yang pertama kali keluar saat kamu melakukan ROLLBACK (pop)
+.
+Efisiensi O(1): Operasi penambahan dan penghapusan data pengiriman dilakukan hanya dengan mengubah referensi (pointer) pada bagian top, sehingga sangat cepat meskipun data log sangat banyak
+.
+Traversing (to_list): Fungsi ini mengikuti logika "link hopping" di buku untuk menelusuri isi stack dari yang terbaru hingga yang terlama tanpa merusak struktur aslinya
+.
+Pastikan kamu memasukkan fungsi-fungsi ini dengan benar ke dalam struktur kelas yang sudah kamu buat tadi. Jika sudah, sistemmu siap digunakan untuk modul Log Pengiriman dan fitur ROLLBACK
+. Apakah ada bagian lain yang ingin kamu isi sekarang?
+class BSTLokasi:
+def init(self):
+self.root = None
+
+
+def insert(self, lokasi):
+    """Big-O: O(log n). Kunci = lokasi.kode."""
+    pass  # TODO: implementasikan
+
+def search(self, kode):
+    """Big-O: O(log n)."""
+    pass  # TODO: implementasikan
+
+def update_level(self, kode, level):
+    """Big-O: O(log n)."""
+    pass  # TODO: implementasikan
+
+def inorder(self):
+    """Big-O: O(n)."""
+    pass  # TODO: implementasikan
+
+class EdgeNode:
+def init(self, dest, jarak, kapasitas):
+self.dest = dest
+self.jarak = jarak
+self.kapasitas = kapasitas
+self.next = None
+
+
+class GraphRute:
+def init(self):
+self.adj = {}
+
+
+def tambah_node(self, kode):
+    """Big-O: O(1)."""
+    pass  # TODO: implementasikan
+
+def tambah_rute(self, u, v, jarak, kapasitas):
+    """Big-O: O(1). Graf tidak berarah."""
+    pass  # TODO: implementasikan
+
+def tetangga(self, u):
+    """Big-O: O(deg)."""
+    pass  # TODO: implementasikan
+
+def bfs_akses(self, depot):
+    """BFS dari depot. Big-O: O(V+E)."""
+    pass  # TODO: gunakan Queue Linked List sendiri
+
+def dijkstra_logistik(graph, depot):
+"""Shortest path dari depot. Big-O: O(V^2+E)."""
+INF = float('inf')
+dist = {v: INF for v in graph.adj}
+parent = {v: None for v in graph.adj}
+dist[depot] = 0
+visited = set()
+# TODO: implementasikan
+return dist, parent
+
+
+def generate_peta_bencana(n_lokasi=35, n_depot=3, seed=47):
+rng = np.random.default_rng(seed)
+lokasi = []
+for i in range(n_depot):
+lokasi.append(Lokasi(f'DEPOT_{i}', f'Gudang Logistik {i}', 3, 0))
+for i in range(n_lokasi):
+kode = f'L{i:03d}'
+level = int(rng.choice([1,2,3], p=[0.2, 0.4, 0.4]))
+pop = int(rng.integers(100, 5000))
+lokasi.append(Lokasi(kode, f'Desa/Kelurahan-{i}', level, pop))
+n_total = len(lokasi)
+perm = rng.permutation(n_total)
+edges = []
+for i in range(1, n_total):
+u = lokasi[perm[i-1]].kode
+v = lokasi[perm[i]].kode
+edges.append((u, v, int(rng.integers(5, 100)), int(rng.integers(1, 5))))
+for _ in range(15):
+i, j = rng.choice(n_total, 2, replace=False)
+edges.append((lokasi[i].kode, lokasi[j].kode, int(rng.integers(5,100)),
+int(rng.integers(1,5))))
+return lokasi, edges
+
+
+def main():
+bst_lokasi = BSTLokasi()
+graph = GraphRute()
+antrian_bantuan = PriorityQueueBantuan()
+log_kirim = Stack()
+bantuan_counter = 0
+
+
+lokasi_list, edges = generate_peta_bencana(35, 3, seed=47)
+for lok in lokasi_list:
+    bst_lokasi.insert(lok)
+    graph.tambah_node(lok.kode)
+for u, v, j, k in edges:
+    graph.tambah_rute(u, v, j, k)
+
+print('Disaster Response Logistics System  Ketik BANTUAN untuk daftar perintah')
+# TODO: implementasikan loop CLI
+# Perintah: KIRIM <depot> <lokasi> <jenis> <jumlah>
+# PROSES_BANTUAN, RUTE_OPTIMAL <depot> <tujuan>
+# UPDATE_LEVEL <kode> <level>, TIDAK_TERJANGKAU <depot>
+# LOG_PENGIRIMAN, LAPORAN_BENCANA, KELUAR
+
+if name == 'main':
+main() kodingan utamanya seperti ini tolong buatkan bagian punyaku yakni implementasi stack , sesuaikan kodingannya dengan koding teman aku yang membuat program utama
+
+Tentu, ini adalah implementasi kelas Stack yang sudah disesuaikan dengan kode utama (starter code) dari temanmu. Implementasi ini menggunakan basis Linked List sesuai dengan standar buku Michael T. Goodrich dkk. (Chapter 7.1.1) dan panduan teknis proyekmu
+.
+Gunakan kodingan di bawah ini untuk mengisi bagian class Stack milikmu:
+class Stack: 
+    def __init__(self): 
+        # Inisialisasi stack kosong sesuai prinsip Linked List di buku
+        self.top = None # 'top' menunjuk ke node teratas (sama dengan '_head' di buku) [2]
+        self._size = 0 
+    
+    def is_empty(self) -> bool:
+        """Mengembalikan True jika stack logistik kosong."""
+        return self._size == 0
+
+    def push(self, data): 
+        """
+        Big-O: O(1).
+        Menambahkan riwayat pengiriman baru ke posisi teratas stack. [2]
+        """
+        # Membuat node baru menggunakan LLNode yang sudah didefinisikan temanmu
+        new_node = LLNode(data)
+        # Menghubungkan node baru ke node yang sebelumnya ada di posisi top
+        new_node.next = self.top
+        # Memperbarui posisi top ke node yang baru saja dimasukkan
+        self.top = new_node
+        self._size += 1 
+    
+    def pop(self): 
+        """
+        Big-O: O(1).
+        Mengambil dan menghapus log terakhir. Digunakan untuk fitur ROLLBACK. [4]
+        """
+        if self.is_empty():
+            return None
+        
+        # Menyimpan data yang akan diambil
+        answer = self.top.data
+        # Menggeser penunjuk top ke node di bawahnya (menghapus referensi node teratas) [4]
+        self.top = self.top.next
+        self._size -= 1
+        return answer 
+    
+    def peek(self): 
+        """
+        Big-O: O(1).
+        Melihat data pengiriman teratas tanpa menghapusnya.
+        """
+        return self.top.data if self.top else None 
+    
+    def to_list(self): 
+        """
+        Big-O: O(n).
+        Menelusuri seluruh stack dan mengembalikannya dalam bentuk list.
+        Sangat berguna untuk fitur LOG_PENGIRIMAN (menampilkan riwayat). [5]
+        """
+        result = []
+        # Melakukan 'link hopping' atau traversal dari top ke bottom [5]
+        curr = self.top
+        while curr is not None:
+            result.append(curr.data)
+            curr = curr.next
+        return result
+
+    def __len__(self):
+        """Mengembalikan jumlah elemen dalam stack."""
+        return self._size
+Mengapa Kodingan Ini Cocok dengan Program Utama Temanmu?
+Penggunaan LLNode: Saya menggunakan LLNode(data) untuk membuat elemen baru, karena temanmu sudah mendefinisikan kelas tersebut di bagian atas kodingannya.
+Mendukung Fitur Logistik:
+push: Digunakan saat perintah KIRIM dijalankan untuk mencatat transaksi ke dalam log_kirim
+.
+pop: Digunakan untuk perintah ROLLBACK, yaitu membatalkan pengiriman terakhir dan mengembalikan stok
+.
+to_list: Digunakan untuk perintah LOG_PENGIRIMAN guna menampilkan seluruh riwayat dari yang terbaru ke yang terlama
+.
+Analisis Big-O: Sesuai permintaan di modul proyek, setiap operasi utama (push dan pop) memiliki kompleksitas O(1) karena hanya memanipulasi pointer pada bagian top saja, tanpa perlu menggeser elemen lain seperti pada array
+.
+Sekarang bagian log_kirim = Stack() di dalam fungsi main() temanmu sudah memiliki logika yang berfungsi penuh sesuai referensi akademik! Apakah kamu ingin saya bantu menjelaskan cara kerja metode tertentu untuk bahan presentasimu nanti?
+tolong jelaskan pada saya maksud dari setiap kode nya dengan jelas bagian stack punya saya
+
+Tentu, mari kita bedah satu per satu bagian kodingan Stack kamu agar kamu paham cara menjelaskannya saat presentasi nanti.
+Kodingan ini mengimplementasikan konsep LIFO (Last-In-First-Out) menggunakan Singly Linked List, yang berarti data terakhir yang masuk adalah yang pertama keluar
+. Dalam sistem logistik bencanamu, stack ini berfungsi menyimpan riwayat pengiriman bantuan sehingga tindakan terakhir bisa dibatalkan (ROLLBACK)
+.
+Berikut adalah penjelasan setiap bagian kodenya:
+1. Inisialisasi (__init__)
+def __init__(self): 
+    self.top = None
+    self._size = 0 
+Maksudnya: Saat objek stack pertama kali dibuat, stack dalam keadaan kosong
+.
+self.top: Merupakan penunjuk (pointer) ke node teratas (paling baru). Awalnya diset ke None karena belum ada data
+.
+self._size: Variabel untuk menghitung jumlah elemen di dalam stack secara real-time agar kita tidak perlu menelusuri seluruh list hanya untuk menghitung jumlahnya
+.
+2. Mengecek Kekosongan (is_empty)
+def is_empty(self):
+    return self._size == 0
+Maksudnya: Fungsi sederhana untuk mengecek apakah ada log pengiriman atau tidak. Jika ukurannya nol, maka stack dianggap kosong
+.
+3. Menambah Data (push)
+def push(self, data): 
+    new_node = LLNode(data)
+    new_node.next = self.top
+    self.top = new_node
+    self._size += 1 
+Maksudnya: Digunakan setiap kali ada pengiriman bantuan baru yang dilakukan
+.
+Logika: Kita membuat sebuah node baru (LLNode)
+. Node baru ini disuruh "memegang" node yang sebelumnya ada di atas (new_node.next = self.top), lalu posisi top diperbarui ke node yang baru saja masuk tersebut
+.
+Kompleksitas: Operasi ini adalah O(1) karena tidak peduli seberapa banyak datanya, kita hanya memanipulasi bagian paling atas saja
+.
+4. Menghapus Data Teratas (pop)
+def pop(self): 
+    if self.is_empty():
+        return None
+    answer = self.top.data
+    self.top = self.top.next
+    self._size -= 1
+    return answer 
+Maksudnya: Ini adalah mesin utama fitur ROLLBACK kamu
+.
+Logika: Jika stack tidak kosong, kita ambil data dari node teratas (self.top.data)
+. Kemudian, kita "membuang" node teratas tersebut dengan cara menggeser penunjuk top ke node di bawahnya (self.top = self.top.next)
+.
+Kompleksitas: Sama dengan push, operasinya adalah O(1)
+.
+5. Melihat Data Teratas (peek)
+def peek(self): 
+    return self.top.data if self.top else None 
+Maksudnya: Digunakan jika kamu hanya ingin melihat apa pengiriman terakhir yang dilakukan tanpa ingin membatalkannya (menghapusnya)
+.
+6. Mengonversi ke List (to_list)
+def to_list(self): 
+    result = []
+    curr = self.top
+    while curr is not None:
+        result.append(curr.data)
+        curr = curr.next
+    return result
+Maksudnya: Sangat berguna untuk perintah LOG_PENGIRIMAN guna menampilkan seluruh riwayat transaksi di layar
+.
+Logika: Melakukan Traversing atau link hopping
+. Program akan mulai dari top, mencatat datanya, lalu pindah ke node berikutnya (curr = curr.next) sampai mencapai ujung list yang bernilai None
+.
+7. Mengetahui Ukuran (__len__)
+def __len__(self):
+    return self._size
+Maksudnya: Memungkinkan kamu menggunakan fungsi bawaan Python len(log_kirim) untuk mengetahui jumlah transaksi yang tersimpan
+.
+Kenapa Ini Penting untuk Proyekmu?
+Sesuai panduan proyek, penggunaan Stack berbasis Linked List ini memberikan efisiensi tinggi (O(1)) untuk pencatatan log
+. Hal ini memastikan sistem logistik bantuan bencana tetap cepat meskipun ribuan transaksi bantuan telah tercatat
+.
+
